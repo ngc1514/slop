@@ -24,8 +24,19 @@ user to reformat:
 | `x70.2 y99.8 -> x68.58 y104.18` | axis labels win over position |
 | `y99.8, x70.2` / `y104.18 x68.58` | axis labels win: X=70.2, Y=99.8 |
 | two bare pairs on separate lines | first = self, second = target |
+| `me 4885 9341 target 10234 3243` | implied decimals: self `Y=48.85 X=93.41`, target `Y=102.34 X=32.43` |
+| `me 9 123 target 10 125` | short bare integers are taken as written: `Y=9 X=123` |
 
 Rules:
+
+- **Implied decimals.** Game coordinates always carry two decimal places, and
+  combat coordinates normally sit in the 10s–100s. So a bare integer of **4 or 5
+  digits** with no `.` has its last two digits as decimals: `4885` → `48.85`,
+  `10234` → `102.34`, `0934` → `9.34`. Apply this per number, before stripping
+  leading zeros. Always do it silently — no note in the output.
+- **Short integers are taken as written.** A bare integer of 1–3 digits (`9`,
+  `123`, `03`) is ambiguous; don't guess at a decimal, just compute with it as-is.
+- Numbers that already contain a `.` are never rescaled.
 
 - **Unlabeled numbers are `Y,X`** (northing first) — first number of every pair is
   Y, second is X. This is the default whenever the user does not write out the axes.
@@ -69,7 +80,8 @@ This is what the two-decimal `y104.18 / x68.58` form means on most tactical maps
 Override the default when:
 
 - the user states a scale (`1km grids`, `units are meters`) — use theirs;
-- the numbers are big and integral (6-figure `123456 / 654321`) — treat as meters;
+- the numbers are big and integral (6+ digits, `123456 / 654321`) — treat as
+  meters (4–5 digit integers are implied decimals, see §1, not meters);
 - the computed range lands absurdly far outside mortar envelope (< 5 m or
   > 20,000 m) — the scale is wrong; adjust by the obvious factor of 10/100/1000 and
   append a single trailing note naming the assumed scale.
